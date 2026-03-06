@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  api:
+    build: ../..
+    command: ["npm", "run", "api"]
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_seo
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+    depends_on:
+      - redis
+      - postgres
+  worker:
+    build: ../..
+    command: ["npm", "run", "worker"]
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_seo
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      - NODE_OPTIONS=--trace-uncaught
+    depends_on:
+      - redis
+      - postgres
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: ai_seo
+    ports:
+      - "5432:5432"
