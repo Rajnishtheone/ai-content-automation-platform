@@ -46,8 +46,16 @@ WP_TAGS=ai,automation,tech
 WP_DEFAULT_CATEGORY_ID=1
 SITEMAP_URL=https://techguide.tech/sitemap_index.xml
 
-MAX_POSTS_PER_DAY=1
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=changeme
+POSTGRES_DB=ai_seo
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+REDIS_URL=redis://redis:6379
 
+ENCRYPTION_KEY=replace_with_64_hex
+JWT_SECRET=dev-secret
+
+MAX_POSTS_PER_DAY=1
 RUN_HOUR=9
 RUN_MINUTE=0
 GEO=IN
