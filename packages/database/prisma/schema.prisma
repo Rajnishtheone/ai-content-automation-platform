@@ -1,0 +1,87 @@
+// Prisma schema for multi-tenant SaaS (PostgreSQL)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  plan       String   @default("starter")
+  createdAt  DateTime @default(now())
+  sites      Site[]
+}
+
+model Site {
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+  wpUrl          String
+  wpUsernameEnc  String
+  wpAppPwEnc     String
+  niche          String?
+  postingFreq    Int      @default(3) // posts per week
+  maxPerDay      Int      @default(1)
+  refreshDays    Int      @default(7)
+  createdAt      DateTime @default(now())
+  articles       Article[]
+  clusters       Cluster[]
+  jobs           Job[]
+  metrics        Metric[]
+}
+
+model Article {
+  id               String   @id @default(uuid())
+  site             Site     @relation(fields: [siteId], references: [id])
+  siteId           String
+  keyword          String
+  title            String
+  slug             String
+  wpPostId         Int?
+  status           String   @default("draft") // published | draft | refreshed
+  wordCount        Int?
+  lastPublishedAt  DateTime?
+  lastRefreshedAt  DateTime?
+  createdAt        DateTime @default(now())
+}
+
+model Job {
+  id         String   @id @default(uuid())
+  site       Site     @relation(fields: [siteId], references: [id])
+  siteId     String
+  type       String   // generate | refresh | analyze | cluster
+  payload    Json
+  status     String   @default("pending")
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+}
+
+model Cluster {
+  id         String   @id @default(uuid())
+  site       Site     @relation(fields: [siteId], references: [id])
+  siteId     String
+  pillar     String
+  plan       Json
+  published  Json
+  createdAt  DateTime @default(now())
+}
+
+model Metric {
+  id         String   @id @default(uuid())
+  site       Site     @relation(fields: [siteId], references: [id])
+  siteId     String
+  query      String
+  page       String
+  impressions Int
+  clicks      Int
+  ctr         Float
+  position    Float
+  fetchedAt   DateTime @default(now())
+}
